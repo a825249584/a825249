@@ -1,0 +1,2381 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>言语理解与表达极限版 - 智能学习系统</title>
+    
+    <!-- PWA配置 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#764ba2">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="言语学习">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="言语学习">
+        <!-- PWA优化：添加manifest和service worker注册 -->
+        <link rel="manifest" href="manifest.json">
+        <meta name="theme-color" content="#764ba2">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+        <meta name="apple-mobile-web-app-title" content="言语学习">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="application-name" content="言语学习">
+    
+    <!-- 图标 -->
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%23667eea' width='192' height='192' rx='24'/%3E%3Ctext x='96' y='120' font-size='80' text-anchor='middle' fill='white'%3E言%3C/text%3E%3C/svg%3E">
+    
+    <!-- 启动画面（iOS） -->
+    <link rel="apple-touch-startup-image" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 375 812'%3E%3Crect fill='%23667eea' width='375' height='812'/%3E%3Ctext x='187.5' y='420' font-size='100' text-anchor='middle' fill='white'%3E言语学习%3C/text%3E%3C/svg%3E">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+        <!-- PWA图标建议：请确保根目录有icon-192.png和icon-512.png，manifest已配置 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { scroll-behavior: smooth; }
+        
+        /* 安全区域适配（刘海屏） */
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            transition: background 0.3s;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        
+        body.dark {
+            background: linear-gradient(135deg, #23272f 0%, #1a1c22 100%);
+            color: #e5e7eb;
+        }
+        
+        body.dark .glass,
+        body.dark .bg-white,
+        body.dark .rounded-xl,
+        body.dark .rounded-2xl {
+            background: rgba(30, 32, 38, 0.95) !important;
+            color: #e5e7eb !important;
+            border-color: #333 !important;
+        }
+        
+        body.dark .text-gray-800,
+        body.dark .text-gray-700,
+        body.dark .text-gray-600 {
+            color: #e5e7eb !important;
+        }
+        
+        body.dark .bg-blue-50,
+        body.dark .bg-purple-50,
+        body.dark .bg-green-50,
+        body.dark .bg-yellow-50,
+        body.dark .bg-red-50,
+        body.dark .bg-gray-50 {
+            background: #23272f !important;
+        }
+        
+        body.dark .border-gray-200,
+        body.dark .border-blue-200,
+        body.dark .border-purple-200,
+        body.dark .border-green-200,
+        body.dark .border-yellow-200,
+        body.dark .border-red-200 {
+            border-color: #333 !important;
+        }
+        
+        body.dark .option-btn {
+            background: #23272f;
+            border-color: #444;
+        }
+        
+        body.dark .option-btn.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.15);
+        }
+        
+        body.dark .option-btn.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.15);
+        }
+        
+        body.dark .nav-btn.bg-blue-50 {
+            background: #23272f !important;
+        }
+        
+        body.dark .bg-gradient-to-br {
+            filter: brightness(0.8);
+        }
+        
+        @media (max-width: 1024px) {
+            aside.w-64 {
+                display: none !important;
+            }
+            main.flex {
+                flex-direction: column;
+                gap: 0 !important;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .max-w-7xl, .px-4, .py-8, .p-8, .p-6, .p-4 {
+                padding-left: 0.5rem !important;
+                padding-right: 0.5rem !important;
+                padding-top: 0.5rem !important;
+                padding-bottom: 0.5rem !important;
+            }
+            .rounded-xl, .rounded-2xl {
+                border-radius: 0.75rem !important;
+            }
+            .tab-content {
+                padding: 0.5rem !important;
+            }
+            .floating-btn {
+                right: 10px;
+                bottom: 10px;
+            }
+        }
+        
+        /* 底部导航栏（移动端显示） */
+        .mobile-nav {
+            display: none;
+        }
+        
+        @media (max-width: 1024px) {
+            /* 显示底部导航 */
+            .mobile-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(10px);
+                border-top: 1px solid rgba(0,0,0,0.1);
+                padding-bottom: env(safe-area-inset-bottom);
+                z-index: 1000;
+                justify-content: space-around;
+                padding-top: 8px;
+            }
+            
+            body.dark .mobile-nav {
+                background: rgba(30, 32, 38, 0.95);
+                border-color: #333;
+            }
+            
+            .mobile-nav button {
+                flex: 1;
+                padding: 8px 4px;
+                font-size: 12px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 4px;
+                color: #666;
+                background: none;
+                border: none;
+                transition: all 0.2s;
+            }
+            
+            .mobile-nav button.active {
+                color: #667eea;
+            }
+            
+            body.dark .mobile-nav button {
+                color: #999;
+            }
+            
+            body.dark .mobile-nav button.active {
+                color: #667eea;
+            }
+            
+            .mobile-nav svg {
+                width: 24px;
+                height: 24px;
+            }
+            
+            /* 主内容区留出底部空间 */
+            main {
+                padding-bottom: 80px !important;
+            }
+            
+            /* 隐藏桌面端浮动按钮，改为右下角FAB */
+            .floating-btn {
+                bottom: 100px;
+            }
+        }
+        
+        /* 触控优化 */
+        @media (pointer: coarse) {
+            .option-btn, button, .checklist-item, .technique-card {
+                min-height: 44px;
+            }
+            .option-btn {
+                margin-bottom: 12px;
+            }
+        }
+        
+        /* 禁用双击缩放 */
+        * {
+            touch-action: manipulation;
+        }
+        
+        /* 滚动优化 */
+        .glass, .tab-content {
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        .serif { font-family: 'Noto Serif SC', serif; }
+        
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .technique-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .technique-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+        
+        .tab-content.active { display: block; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar { transition: width 0.5s ease; }
+        
+        .checklist-item {
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .checklist-item:hover { background: rgba(102, 126, 234, 0.1); }
+        
+        .checklist-item.checked {
+            text-decoration: line-through;
+            opacity: 0.6;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .relation-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+        
+        .badge-progressive { background: #dbeafe; color: #1e40af; }
+        .badge-causal { background: #dcfce7; color: #166534; }
+        .badge-contrast { background: #fee2e2; color: #991b1b; }
+        .badge-conditional { background: #fef3c7; color: #92400e; }
+        .badge-parallel { background: #f3e8ff; color: #6b21a8; }
+        
+        ::-webkit-scrollbar { width: 8px; }
+        
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 4px;
+        }
+        
+        .option-btn {
+            transition: all 0.2s;
+            border: 2px solid #e5e7eb;
+            text-align: left;
+        }
+        
+        .option-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+            transform: translateX(4px);
+        }
+        
+        .option-btn.correct {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.1);
+        }
+        
+        .option-btn.wrong {
+            border-color: #ef4444;
+            background: rgba(239, 68, 68, 0.1);
+        }
+        
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+        
+        .timer-warning { animation: pulse 1s infinite; color: #dc2626; }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .floating-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 100;
+        }
+        
+        .search-highlight {
+            background: yellow;
+            padding: 0 2px;
+            border-radius: 2px;
+        }
+        
+        .collapsible-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .collapsible-content.expanded {
+            max-height: 2000px;
+        }
+        
+        .draggable-item {
+            cursor: move;
+            transition: transform 0.2s;
+        }
+        
+        .draggable-item.dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+        }
+        
+        .drop-zone {
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            min-height: 60px;
+            transition: all 0.3s;
+        }
+        
+        .drop-zone.drag-over {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <!-- 顶部导航 -->
+    <header class="glass sticky top-0 z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">言</div>
+                    <div>
+                        <h1 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">言语理解与表达极限版</h1>
+                        <p class="text-sm text-gray-600">40秒解题法 · 15种实战技法 · 动态学习系统</p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div class="hidden md:flex items-center space-x-2 bg-white rounded-full px-4 py-2 shadow-sm">
+                        <span class="text-sm text-gray-600">总进度:</span>
+                        <div class="w-32 h-2 bg-gray-200 rounded-full overflow-hidden">
+                            <div id="totalProgress" class="progress-bar h-full bg-gradient-to-r from-blue-500 to-purple-600" style="width: 0%"></div>
+                        </div>
+                        <span id="totalProgressText" class="text-sm font-semibold text-blue-600">0%</span>
+                    </div>
+                    <button onclick="toggleDarkMode()" class="px-3 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition shadow-md flex items-center gap-2" title="切换深色模式">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        深色模式
+                    </button>
+                    <button onclick="toggleFocusMode()" class="px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition shadow-md flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        专注模式
+                    </button>
+                </div>
+            </div>
+            
+            <!-- 搜索栏 -->
+            <div class="mt-4 flex gap-2">
+                <input type="text" id="globalSearch" placeholder="搜索技法、关联词、题型..." 
+                    class="flex-1 px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                    onkeyup="handleSearch(event)">
+                <button onclick="clearSearch()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition">清除</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="max-w-7xl mx-auto px-4 py-8 flex gap-6">
+        
+        <!-- 左侧导航 -->
+        <aside class="w-64 hidden lg:block flex-shrink-0">
+            <div class="glass rounded-2xl p-4 sticky top-32">
+                <nav class="space-y-1" id="navMenu">
+                    <!-- 动态生成 -->
+                </nav>
+                
+                <!-- 学习统计 -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">学习统计</h3>
+                    <div class="space-y-3 text-sm">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">已掌握技法</span>
+                            <span id="statTechniques" class="font-semibold text-blue-600">0/15</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">关联词熟悉</span>
+                            <span id="statRelations" class="font-semibold text-purple-600">0/8</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">练习正确率</span>
+                            <span id="statAccuracy" class="font-semibold text-green-600">--</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">今日学习</span>
+                            <span id="statToday" class="font-semibold text-orange-600">0分钟</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 快捷工具 -->
+                <div class="mt-6 pt-6 border-t border-gray-200">
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">快捷工具</h3>
+                    <div class="space-y-2">
+                        <button onclick="randomDrill()" class="w-full px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition text-sm text-left flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                            随机练习
+                        </button>
+                        <button onclick="showMistakeBook()" class="w-full px-3 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition text-sm text-left flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                            错题本 (<span id="mistakeCount">0</span>)
+                        </button>
+                        <button onclick="exportProgress()" class="w-full px-3 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition text-sm text-left flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            导出进度
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 内容区域 -->
+        <div class="flex-1 min-w-0 space-y-6" id="mainContent">
+            
+            <!-- 学习概览 -->
+            <section id="overview" class="tab-content active">
+                <div class="glass rounded-2xl p-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-3xl font-bold serif text-gray-800">学习概览</h2>
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm" id="currentDate"></span>
+                    </div>
+                    
+                    <p class="text-lg text-gray-600 mb-6 leading-relaxed">
+                        本系统基于《言语理解与表达极限版》教材构建，旨在帮助考生在<strong class="text-blue-600">40秒内完成一道题目</strong>，并达到<strong class="text-blue-600">40题全对</strong>的目标。
+                    </p>
+
+                    <!-- 核心数据卡片 -->
+                    <div class="grid md:grid-cols-4 gap-4 mb-8">
+                        <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl p-6 text-white cursor-pointer hover:shadow-lg transition" onclick="switchTab('techniques')">
+                            <div class="text-3xl font-bold mb-1" id="cardTechniques">0/15</div>
+                            <div class="text-blue-100 text-sm">实战技法</div>
+                            <div class="mt-2 text-xs opacity-75">点击查看详情 →</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl p-6 text-white cursor-pointer hover:shadow-lg transition" onclick="switchTab('relations')">
+                            <div class="text-3xl font-bold mb-1" id="cardRelations">0/8</div>
+                            <div class="text-purple-100 text-sm">关联词关系</div>
+                            <div class="mt-2 text-xs opacity-75">点击查看详情 →</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-xl p-6 text-white cursor-pointer hover:shadow-lg transition" onclick="switchTab('question-types')">
+                            <div class="text-3xl font-bold mb-1">10</div>
+                            <div class="text-green-100 text-sm">考查题型</div>
+                            <div class="mt-2 text-xs opacity-75">点击查看详情 →</div>
+                        </div>
+                        <div class="bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl p-6 text-white cursor-pointer hover:shadow-lg transition" onclick="switchTab('practice')">
+                            <div class="text-3xl font-bold mb-1" id="cardPractices">0</div>
+                            <div class="text-orange-100 text-sm">已完成练习</div>
+                            <div class="mt-2 text-xs opacity-75">点击开始训练 →</div>
+                        </div>
+                    </div>
+
+                    <!-- 做题路径 -->
+                    <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-xl p-6 border border-blue-200 mb-8">
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center text-lg">
+                            <svg class="w-6 h-6 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            核心解题路径：宏观 ⇒ 微观 ⇒ 整体
+                        </h3>
+                        <div class="grid md:grid-cols-3 gap-4">
+                            <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-blue-500">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">1</span>
+                                    <h4 class="font-bold text-gray-800">宏观（行文脉络）</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 pl-11">分析行文脉络、辅证推断，迅速判断、定位主旨句的位置</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-purple-500">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">2</span>
+                                    <h4 class="font-bold text-gray-800">微观（关联词）</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 pl-11">寻找关联词、标志词等关键信息，精确定位关键词和主旨句</p>
+                            </div>
+                            <div class="bg-white rounded-lg p-4 shadow-sm border-l-4 border-green-500">
+                                <div class="flex items-center mb-2">
+                                    <span class="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">3</span>
+                                    <h4 class="font-bold text-gray-800">整体（观点对策）</h4>
+                                </div>
+                                <p class="text-sm text-gray-600 pl-11">全面理解全文，寻找关键句、对策句或观点句</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 学习检查清单 -->
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-gray-800 flex items-center justify-between">
+                            <span>📋 学习检查清单</span>
+                            <button onclick="resetChecklist()" class="text-sm text-blue-600 hover:text-blue-800">重置</button>
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-3" id="checklistContainer">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 15种实战技法 -->
+            <section id="techniques" class="tab-content">
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-2xl font-bold serif">十五种实战技法</h2>
+                        <div class="flex gap-2">
+                            <button onclick="filterTechniques('all')" class="px-3 py-1 rounded-full bg-blue-600 text-white text-sm">全部</button>
+                            <button onclick="filterTechniques('基础')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm hover:bg-gray-300">基础</button>
+                            <button onclick="filterTechniques('辅助')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm hover:bg-gray-300">辅助</button>
+                            <button onclick="filterTechniques('解题')" class="px-3 py-1 rounded-full bg-gray-200 text-gray-700 text-sm hover:bg-gray-300">解题</button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid gap-4" id="techniqueGrid">
+                        <!-- 动态生成 -->
+                    </div>
+
+                    <!-- 技法详情模态框 -->
+                    <div id="techniqueModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+                        <div class="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-y-auto p-6 relative">
+                            <button onclick="closeTechniqueModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                            </button>
+                            <div id="techniqueModalContent"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 8种关联词 -->
+            <section id="relations" class="tab-content">
+                <div class="glass rounded-2xl p-6 mb-6">
+                    <h2 class="text-2xl font-bold mb-2 serif">关联词（虚词）8种关系</h2>
+                    <p class="text-gray-600 mb-6">重点找主旨句、主题句的关联词。关联词是句与句之间逻辑关系的纽带。</p>
+                    
+                    <!-- 关系卡片 -->
+                    <div class="grid md:grid-cols-2 gap-4 mb-6" id="relationGrid">
+                        <!-- 动态生成 -->
+                    </div>
+
+                    <!-- 互动测试 -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">🎯 关联词快速测试</h3>
+                        <div id="relationQuiz">
+                            <p class="text-gray-600 mb-4">点击"开始测试"，系统会给出句子，请选择正确的关联词关系。</p>
+                            <button onclick="startRelationQuiz()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">开始测试</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 速查表 -->
+                <div class="glass rounded-2xl p-6">
+                    <h3 class="text-lg font-bold mb-4">📊 关联词速查表</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="px-4 py-3 text-left rounded-tl-lg">关系类型</th>
+                                    <th class="px-4 py-3 text-left">标志词</th>
+                                    <th class="px-4 py-3 text-left">重点位置</th>
+                                    <th class="px-4 py-3 text-left rounded-tr-lg">记忆口诀</th>
+                                </tr>
+                            </thead>
+                            <tbody id="relationTableBody" class="divide-y divide-gray-200 bg-white"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 行文脉络 -->
+            <section id="structure" class="tab-content">
+                <div class="glass rounded-2xl p-6">
+                    <h2 class="text-2xl font-bold mb-6 serif">行文脉络法</h2>
+                    
+                    <div class="space-y-4" id="structureContainer">
+                        <!-- 动态生成 -->
+                    </div>
+
+                    <!-- 结构判断练习 -->
+                    <div class="mt-6 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl p-6 border border-purple-200">
+                        <h3 class="font-bold text-lg mb-4 text-purple-800">🔍 结构判断练习</h3>
+                        <div id="structureExercise">
+                            <p class="text-gray-600 mb-4">给出一段文字，判断其行文脉络结构。</p>
+                            <button onclick="startStructureExercise()" class="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition">开始练习</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10种题型 -->
+            <section id="question-types" class="tab-content">
+                <div class="glass rounded-2xl p-6">
+                    <h2 class="text-2xl font-bold mb-6 serif">片段阅读10种考查题型</h2>
+                    
+                    <div class="space-y-4" id="questionTypeList">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- 逻辑填空 -->
+            <section id="fill-blank" class="tab-content">
+                <div class="glass rounded-2xl p-6">
+                    <h2 class="text-2xl font-bold mb-6 serif">逻辑（选词）填空</h2>
+                    
+                    <div class="grid md:grid-cols-2 gap-6 mb-6">
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-lg text-blue-800">实词辨析维度</h3>
+                            <div class="space-y-3" id="wordAnalysisDims">
+                                <!-- 动态生成 -->
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-lg text-purple-800">解题步骤</h3>
+                            <div class="space-y-3" id="fillBlankSteps">
+                                <!-- 动态生成 -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 语素差异对比表 -->
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <h3 class="font-bold text-lg mb-4">语素差异对比表</h3>
+                        <div class="grid md:grid-cols-3 gap-4" id="wordComparisonTable">
+                            <!-- 动态生成 -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 计时训练 -->
+            <section id="practice" class="tab-content">
+                <div class="glass rounded-2xl p-6">
+                    <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                        <h2 class="text-2xl font-bold serif">计时训练模式</h2>
+                        <div class="flex items-center gap-4">
+                            <div class="text-center">
+                                <div class="text-xs text-gray-500">目标时间</div>
+                                <div class="text-xl font-bold text-blue-600">40秒</div>
+                            </div>
+                            <div class="text-4xl font-mono font-bold text-gray-800" id="mainTimer">00:40</div>
+                            <button onclick="startMainDrill()" id="mainStartBtn" class="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition shadow-md flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                开始
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 练习设置 -->
+                    <div class="flex gap-4 mb-6 flex-wrap">
+                        <select id="drillTypeSelect" class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500">
+                            <option value="all">全部题型</option>
+                            <option value="主旨概括">主旨概括题</option>
+                            <option value="意图推断">意图推断题</option>
+                            <option value="细节判断">细节判断题</option>
+                            <option value="逻辑填空">逻辑填空题</option>
+                            <option value="语句排序">语句排序题</option>
+                        </select>
+                        <select id="drillCountSelect" class="px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500">
+                            <option value="5">5道题</option>
+                            <option value="10">10道题</option>
+                            <option value="20">20道题</option>
+                            <option value="40">40道题（模拟）</option>
+                        </select>
+                        <label class="flex items-center gap-2 px-4 py-2 bg-white rounded-lg border border-gray-300 cursor-pointer">
+                            <input type="checkbox" id="strictMode" class="rounded text-blue-600">
+                            <span class="text-sm">严格模式（超时自动提交）</span>
+                        </label>
+                    </div>
+
+                    <!-- 练习区域 -->
+                    <div id="drillArea" class="hidden">
+                        <div class="bg-white rounded-xl p-6 shadow-lg mb-4">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-semibold" id="currentDrillType">主旨概括题</span>
+                                    <span class="text-gray-500 text-sm">第 <span id="currentDrillNum">1</span> / <span id="totalDrillNum">5</span> 题</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <button onclick="markCurrentQuestion()" class="text-yellow-600 hover:text-yellow-700 text-sm flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z"></path></svg>
+                                        标记
+                                    </button>
+                                    <button onclick="showCurrentHint()" class="text-blue-600 hover:text-blue-700 text-sm flex items-center gap-1">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                                        提示
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="prose max-w-none mb-6">
+                                <p class="text-lg leading-relaxed text-gray-800" id="drillQuestionText"></p>
+                            </div>
+
+                            <div class="space-y-3" id="drillOptionsContainer">
+                                <!-- 动态生成选项 -->
+                            </div>
+
+                            <div id="drillFeedback" class="hidden mt-6 p-4 rounded-lg border-l-4">
+                                <h4 class="font-bold mb-2" id="feedbackTitle"></h4>
+                                <p class="text-sm mb-2" id="feedbackContent"></p>
+                                <div class="text-xs text-gray-500" id="feedbackTechnique"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between">
+                            <button onclick="prevDrillQuestion()" class="px-4 py-2 bg-gray-200 rounded-lg hover:bg-gray-300 transition flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                上一题
+                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="skipCurrentQuestion()" class="px-4 py-2 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition">跳过</button>
+                                <button onclick="nextDrillQuestion()" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center gap-2">
+                                    下一题
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 练习结果 -->
+                    <div id="drillResult" class="hidden text-center py-12">
+                        <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-12 h-12 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2">练习完成！</h3>
+                        <div class="text-4xl font-bold text-blue-600 mb-4" id="resultScore">0%</div>
+                        <div class="grid md:grid-cols-3 gap-4 max-w-md mx-auto mb-6 text-sm">
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="text-gray-500">正确率</div>
+                                <div class="text-xl font-bold text-green-600" id="resultCorrect">0/0</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="text-gray-500">平均用时</div>
+                                <div class="text-xl font-bold text-purple-600" id="resultAvgTime">0秒</div>
+                            </div>
+                            <div class="bg-white p-3 rounded-lg shadow-sm">
+                                <div class="text-gray-500">总用时</div>
+                                <div class="text-xl font-bold text-blue-600" id="resultTotalTime">0秒</div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center gap-4">
+                            <button onclick="reviewWrongQuestions()" class="px-6 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition">查看错题</button>
+                            <button onclick="restartDrill()" class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">再来一组</button>
+                            <button onclick="shareResult()" class="px-6 py-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition">分享成绩</button>
+                        </div>
+                    </div>
+
+                    <!-- 练习介绍 -->
+                    <div id="drillIntro" class="text-center py-12">
+                        <div class="w-24 h-24 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">40秒极限训练</h3>
+                        <p class="text-gray-600 mb-6 max-w-md mx-auto">每道题限时40秒，训练快速识别关键词、关联词和行文脉络的能力。达到40秒/题，40题全对的目标！</p>
+                        <div class="flex justify-center gap-4 text-sm flex-wrap">
+                            <span class="px-4 py-2 bg-blue-100 text-blue-800 rounded-full flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                智能题库
+                            </span>
+                            <span class="px-4 py-2 bg-green-100 text-green-800 rounded-full flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                自动计时
+                            </span>
+                            <span class="px-4 py-2 bg-purple-100 text-purple-800 rounded-full flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                即时解析
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- 浮动按钮 -->
+    <div class="floating-btn flex flex-col gap-2">
+        <button onclick="scrollToTop()" class="w-12 h-12 bg-blue-600 text-white rounded-full shadow-lg hover:bg-blue-700 transition flex items-center justify-center" title="回到顶部">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"></path></svg>
+        </button>
+        <button onclick="toggleHelp()" class="w-12 h-12 bg-purple-600 text-white rounded-full shadow-lg hover:bg-purple-700 transition flex items-center justify-center" title="帮助">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        </button>
+    </div>
+
+    <!-- 帮助模态框 -->
+    <div id="helpModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 relative">
+            <button onclick="toggleHelp()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <h3 class="text-xl font-bold mb-4">使用帮助</h3>
+            <div class="space-y-3 text-sm text-gray-600">
+                <p><strong>🎯 学习目标：</strong>40秒完成一道题，40题全对</p>
+                <p><strong>⌨️ 快捷键：</strong></p>
+                <ul class="list-disc list-inside pl-4 space-y-1">
+                    <li>空格键：开始/暂停训练</li>
+                    <li>数字键 1-4：选择选项</li>
+                    <li>方向键 ← →：切换题目</li>
+                    <li>ESC：关闭弹窗</li>
+                </ul>
+                <p><strong>💡 学习建议：</strong>先掌握15种技法和8种关联词，再进行计时训练</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 页脚 -->
+    <footer class="glass mt-12 py-8 border-t border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="mb-4">
+                <span class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">言语理解与表达极限版</span>
+            </div>
+            <div class="grid md:grid-cols-3 gap-6 mb-6 text-sm text-gray-600">
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">核心目标</h4>
+                    <p>40秒完成一道题<br>40题全对</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">学习原则</h4>
+                    <p>忠于原文，关注细节不发散<br>多做题，多总结，多复习</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-gray-800 mb-2">核心方法</h4>
+                    <p>宏观（行文脉络）→ 微观（关联词）<br>→ 整体（观点对策）</p>
+                </div>
+            </div>
+            <div class="border-t border-gray-200 pt-4 text-xs text-gray-500">
+                <p class="mb-2">"学习强度一般情况没有胆囊疼痛那么痛苦和无法忍受坚持，那么如果学习达到这种难度，痛并快速地提高自己的学习能力，并努力做到极致，学习收获并不会差！"</p>
+                <p>© 2025 言语理解与表达极限版学习系统 | 基于分步解题法与替换压缩法构建</p>
+            </div>
+        </div>
+    </footer>
+
+        <!-- PWA Service Worker 注册脚本 -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                    navigator.serviceWorker.register('service-worker.js').then(function(registration) {
+                        // 注册成功
+                        // console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    }, function(err) {
+                        // 注册失败
+                        // console.log('ServiceWorker registration failed: ', err);
+                    });
+                });
+            }
+        </script>
+
+    <script>
+        // ==================== 深色模式切换 ====================
+        function toggleDarkMode() {
+            const isDark = document.body.classList.toggle('dark');
+            localStorage.setItem('darkMode', isDark ? '1' : '0');
+        }
+        // 页面加载时自动应用深色模式
+        if (localStorage.getItem('darkMode') === '1' || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.addEventListener('DOMContentLoaded', function() {
+                document.body.classList.add('dark');
+            });
+        }
+
+        // ==================== 数据定义 ====================
+        
+        const techniquesData = [
+            {
+                id: 1,
+                name: "分步解题法",
+                category: "基础",
+                icon: "1️⃣",
+                desc: "做题顺序贯彻言语理解与表达全过程",
+                detail: "1. 审题问（确定题型类别）→ 2. 读题干（寻找关键词句）→ 3. 看选项（对比原文与其他选项）",
+                points: ["从'问题'角度出发，迅速识别题型", "主动搜寻主旨句、中心句和主题句", "对比选项，选出与原文最契合的答案"],
+                example: "提问方式'这段文字主要强调的是'→确定是主旨概括题→回原文找主题句→对比选项找同义替换"
+            },
+            {
+                id: 2,
+                name: "替换压缩法",
+                category: "基础",
+                icon: "🔄",
+                desc: "注意选项与材料之间的相关性、联系性",
+                detail: "命题人将原文语句用另一种语言形式表达：同义替换或精简压缩",
+                points: ["同义替换：第一位=首位、消极=负面、能否=也许、差异=多样性", "精简压缩：提炼主谓宾，删去定状补", "原文无主题句时：并列加合、同类合并"],
+                example: "原文'第一位'选项'首位'；原文'消极影响'选项'负面效应'"
+            },
+            {
+                id: 3,
+                name: "成分分析法",
+                category: "基础",
+                icon: "✂️",
+                desc: "分析句子主干，删去修饰成分",
+                detail: "分析主语、谓语、宾语，删去定状补，把握核心观点",
+                points: ["的......（定语前置）：美丽的花", "地......（状语前置）：高兴地唱", "得......（补语）：跑得快"],
+                example: "美丽的花静静地开在温暖的春天里→主谓宾：花开"
+            },
+            {
+                id: 4,
+                name: "背景铺垫法",
+                category: "辅助",
+                icon: "📍",
+                desc: "识别文段开头的背景信息",
+                detail: "材料之初交代大背景、大趋势或现实问题，接着引出观点或对策",
+                points: ["形势分析：随着......的变化/提高/下降/紧缺/发展/日益突出", "时间状语：近年来、改革开放以来、目前、当下、当前", "地点状语：在美国、在......地方等"],
+                example: "近年来，随着经济的发展...（背景）...因此我们必须...（观点）"
+            },
+            {
+                id: 5,
+                name: "表达倾向法",
+                category: "辅助",
+                icon: "↗️",
+                desc: "判断作者态度倾向（积极/消极）",
+                detail: "文段表达的倾向性：积极（肯定）或消极（否定）",
+                points: ["消极标志：从表面上看、看上去、似乎、好像、所谓、遗憾的是", "积极标志：值得肯定、令人欣慰、毫无疑问", "正确答案倾向性要与原文一致"],
+                example: "'所谓的专家'（消极）vs '专家指出'（中性/积极）"
+            },
+            {
+                id: 6,
+                name: "援引观点法",
+                category: "辅助",
+                icon: "💬",
+                desc: "援自引用他人观点，引出作者观点",
+                detail: "援引通常旨在引出说话人的观点，分正向援引和反向援引",
+                points: ["正向援引：正如...所说，因此/所以/可见...", "反向援引：通常认为/传统认为...但是/其实/实际上...", "标志词：指出、说明、表明、显示（引导主题句）"],
+                example: "正如马克思所说...因此我们必须...（正向）/ 有一种观点认为...但是...（反向）"
+            },
+            {
+                id: 7,
+                name: "举例论证法",
+                category: "辅助",
+                icon: "📝",
+                desc: "识别例子，定位前后观点",
+                detail: "通过摆事实、举例子来证明之前或之后出现的观点",
+                points: ["显性例子：比如、例如、以...为例", "隐性例子：数据、年份、人名、地名、术语", "例子本身不重要，前后常有主题句"],
+                example: "比如...例如...（例子前后找观点）"
+            },
+            {
+                id: 8,
+                name: "原因推断法",
+                category: "辅助",
+                icon: "🔍",
+                desc: "通过原因位置寻找主题句",
+                detail: "围绕观点阐明原因以佐证，原因阐述增强结论说服力",
+                points: ["结构：阐明原因→引出观点；点明观点→阐明原因；点明观点→阐明原因→重申观点", "标志词：因为、由于、导致、造成、致使、使得、于是", "'之所以...是因为...'倒装强调原因"],
+                example: "因为...所以...（重点在所以）/ 之所以...是因为...（重点在是因为）"
+            },
+            {
+                id: 9,
+                name: "反面论证法",
+                category: "辅助",
+                icon: "⚠️",
+                desc: "通过反面论证确定正面观点",
+                detail: "先证明正面观点，再用反面论证补充加强",
+                points: ["正+反：反面论证前有正面论点，常有'否则''不然'", "（正）+反：省略正面论点，常有'如果...不...''如果...没有...'", "通过对反面观点推出正面观点"],
+                example: "正面：如果你带伞，就不会淋雨 / 反面：如果你不带伞，你会淋雨"
+            },
+            {
+                id: 10,
+                name: "标点符号法",
+                category: "辅助",
+                icon: "〰️",
+                desc: "利用标点判断逻辑关系",
+                detail: "不同标点符号有不同的逻辑功能",
+                points: ["冒号、破折号：解释说明", "分号、顿号：引导并列（顿号：词与词；分号：句与句）", "双引号：援引观点、强调特称、反证讽刺", "问号：设问（引出话题）、反问（态度倾向）、疑问（不确定性）"],
+                example: "他所谓的'帮助'实际上是添乱（反讽）"
+            },
+            {
+                id: 11,
+                name: "指代引导法",
+                category: "辅助",
+                icon: "👉",
+                desc: "利用宏观指代词定位主题句",
+                detail: "文段前半段罗列问题，接着用指代类代词引导主题句",
+                points: ["代词指代前文宏观信息（非具体某个词）", "包含并列要素A、B、C时需全面归纳", "常见指代词：这、那、此、前者、后者"],
+                example: "目前存在诸多问题...这使得我们必须...（'这'指代前文所有问题）"
+            },
+            {
+                id: 12,
+                name: "选项差异法",
+                category: "解题",
+                icon: "🔀",
+                desc: "注意选项差异词组",
+                detail: "比较选项间最大不同，该要素是判断是否同义替换的标志",
+                points: ["找选项间差异最大的词或短语", "排除两个选项后，重点对比剩余两个的差异", "差异处往往是解题关键"],
+                example: "A.保护环境 B.保护生态 C.保护自然 D.保护资源（差异在宾语，回原文找对应）"
+            },
+            {
+                id: 13,
+                name: "主体排除法",
+                category: "解题",
+                icon: "🚫",
+                desc: "确保选项与文段主体一致",
+                detail: "从选项入手，排除与文段陈述主体不一致的选项",
+                points: ["主体≠主语，主体是关键句的核心陈述者", "常与选项差异法结合使用", "主体相同的情况下，找选项间差异"],
+                example: "文段讲'新能源汽车'，选项讲'传统汽车'→排除"
+            },
+            {
+                id: 14,
+                name: "排同求异法",
+                category: "解题",
+                icon: "⚖️",
+                desc: "排除相同项，在矛盾项中找答案",
+                detail: "利用单项选择题的唯一性特征解题",
+                points: ["排同法：意思相同或相近的选项均排除", "求异法：答案常隐藏在一对矛盾选项中", "矛盾双方必有一真一假，前提是选项与原文相关"],
+                example: "A.支持 B.反对 C.中立 D.支持（A和D排同，答案在B或C）"
+            },
+            {
+                id: 15,
+                name: "相对绝对法",
+                category: "解题",
+                icon: "📏",
+                desc: "根据表述绝对程度猜题",
+                detail: "语言交际常留有余地，过于绝对化的表述通常不是正确答案",
+                points: ["绝对化表述（通常错）：都、所有、一切、任何、完全、永远不、绝对、各个、总是、一定、全都、不可能、必将", "相对表述（通常对）：可能、也许、大概、通常、往往、一般、未必、是否"],
+                example: "A.一定会成功 B.可能会成功（选B）"
+            }
+        ];
+
+        const relationsData = [
+            {
+                type: "递进关系",
+                badge: "badge-progressive",
+                color: "blue",
+                desc: "后一句分句在意思上比前一个分句更近一层",
+                markers: ["不但...而且...", "不仅...还...", "甚至/尤其/特别", "不但不...反而..."],
+                focus: "递进之后是重点，二级递进尤为关键",
+                memory: "不但=8个（不仅、不只、不单、不独、不光、除了、连、不但），而且=4个（并且、也、还、而且），甚至=7个",
+                example: "他不但学习好，而且乐于助人，甚至主动帮助差生。"
+            },
+            {
+                type: "因果关系",
+                badge: "badge-causal",
+                color: "green",
+                desc: "结论复句，原因服务于结论",
+                markers: ["因为...所以...", "由于...因此...", "导致/造成/致使/使得", "之所以...是因为..."],
+                focus: "结论之后是重点；'之所以...是因为...'倒装强调原因",
+                memory: "'之所以'倒装强调原因，'于是'有两层意思：表结论（因此）和表顺承（时间顺序）",
+                example: "因为下雨，所以活动取消。（重点：活动取消）/ 之所以取消，是因为下雨。（重点：下雨）"
+            },
+            {
+                type: "转折关系",
+                badge: "badge-contrast",
+                color: "red",
+                desc: "后一个分句意思与前一个相反或相对",
+                markers: ["虽然...但是...", "然而", "却", "不过", "可是", "其实/事实上/实际上"],
+                focus: "转折之后是重点；强转优于弱转",
+                memory: "弱转6个（其实、事实上、实际上、当然、只是、好像），强转6个（但是、但、然而、却、不过、可是）",
+                example: "虽然他很努力，但是成绩不理想。（重点：成绩不理想）"
+            },
+            {
+                type: "必要条件",
+                badge: "badge-conditional",
+                color: "yellow",
+                desc: "前一分句提出条件，后一分句说明结果",
+                markers: ["只有...才...", "必须", "务必", "除非", "才"],
+                focus: "必要条件是重点，常引出对策",
+                memory: "只有A才B = B必须A = 不A则不B = A是B的必要条件（必备要素、不可或缺、前提、基础）",
+                example: "只有努力，才能成功。（重点：努力）/ 必须加强管理。（对策）"
+            },
+            {
+                type: "并列关系",
+                badge: "badge-parallel",
+                color: "purple",
+                desc: "分句间互为解释参照或补充说明，无主次",
+                markers: ["既...又...", "不是...而是...", "同时", "此外", "另外", "；", "也...也..."],
+                focus: "并列复句没有重点，主旨题应全面概括，不可偏颇",
+                memory: "并存相对：既A又B（同义项）；相反并列：不是A而是B（反义项）。并列无语序要求",
+                example: "他既聪明又勤奋。（全面概括）/ 不是我不想去，而是实在没空。（强调后者）"
+            },
+            {
+                type: "承接关系",
+                badge: "badge-causal",
+                color: "green",
+                desc: "各分句表示连续发生的事情或动作，有先后顺序",
+                markers: ["首先...然后...", "...便...", "...一...就...", "...于是...", "...接着..."],
+                focus: "语序一定，不可调换",
+                memory: "与并列最大区别：承接有先后顺序，并列无主次之分",
+                example: "他先敲门，然后推门进去。（顺序固定）"
+            },
+            {
+                type: "让步复句",
+                badge: "badge-contrast",
+                color: "red",
+                desc: "姑且承认某种事实，后句转入正意",
+                markers: ["即使...也...", "纵然...也...", "哪怕...也..."],
+                focus: "让步条件之后是重点",
+                memory: "与'虽然...但是...'最大区别是时态：'即使'是未然（假设），'虽然'是已然（事实）",
+                example: "即使下雨，我也要去。（假设未发生）/ 虽然下雨了，但我还是去了。（事实已发生）"
+            },
+            {
+                type: "取舍复句",
+                badge: "badge-contrast",
+                color: "red",
+                desc: "两害相权取其轻，有取有舍",
+                markers: ["与其...不如...", "宁可...也不..."],
+                focus: "取前舍后或舍前取后，看具体关联词",
+                memory: "取前舍后：宁可...也不...；舍前取后：与其...不如...。与递进最大区别：一肯一否",
+                example: "与其等待，不如行动。（选行动）/ 宁可失败，也不放弃。（选不放弃）"
+            }
+        ];
+
+        const structuresData = [
+            {
+                name: "总-分-总",
+                type: "重点结构",
+                desc: "提出问题→分析论证→解决问题 或 点明观点→解释说明→重申观点",
+                features: ["首尾句都重要，综合首尾", "对策型：重点在解决问题的对策", "观点型：综合首尾观点"],
+                example: "近年来...（背景）...因此我们必须...（观点）...综上所述...（重申）",
+                identification: "看首尾是否有相同/相近表述"
+            },
+            {
+                name: "总-分",
+                type: "重点结构",
+                desc: "提出观点→解释说明/举例论证",
+                features: ["首句开门见山提出观点", "后面都是论证说明", "首句即主题句"],
+                example: "创新是引领发展的第一动力。具体来说...",
+                identification: "首句概括性强，后面展开说明"
+            },
+            {
+                name: "分-总",
+                type: "重点结构",
+                desc: "列举现象→提出观点/解决问题",
+                features: ["前面铺垫，后面出重点", "重点在文段后半部分", "常出现'因此''所以''可见'等总结词"],
+                example: "目前存在...问题...因此建议...（对策）",
+                identification: "关注后半段的总结词和对策句"
+            },
+            {
+                name: "分-总-分",
+                type: "重点结构",
+                desc: "阐述现状/举例论证→观点对策→解释说明/反面论证",
+                features: ["中间部分是重点", "前有铺垫，后有补充", "识别中间的主题句"],
+                example: "近年来...（背景）...因此必须...（对策）...否则...（反面论证）",
+                identification: "找中间的'因此''必须'等引导的核心句"
+            },
+            {
+                name: "分-分（并列）",
+                type: "特殊结构",
+                desc: "文段无明确主题句，多句并列",
+                features: ["无主次之分，需全面概括", "同类合并，异类加合", "注意'同时''此外''另外'等标志"],
+                example: "A方面...同时B方面...此外C方面...（需ABC都概括）",
+                identification: "无明显总结句，多句地位平等"
+            }
+        ];
+
+        const questionTypesData = [
+            {
+                name: "主旨概括题",
+                type: "片段阅读",
+                markers: ["核心意思", "主要强调", "主旨", "中心意思", "重在", "关键词是", "主要讲述"],
+                method: "寻找文段关键句（主题句），通常是解决问题的对策或核心观点。在选项中找到与关键句同义的表达（同义替换或精简压缩）。",
+                keypoint: "忠于原文，避免过度引申；首尾句原则但不能盲目；并列结构需全面概括",
+                avoid: "不要选例子、原因、背景铺垫的选项"
+            },
+            {
+                name: "意图推断题",
+                type: "片段阅读",
+                markers: ["意在表明", "意在强调", "想表明", "可以推断出", "告诉我们", "启示", "想要"],
+                method: "把握作者                说话的目的、意图及言外之意。通常针对负面问题呼吁解决对策，或针对现象总结观点。优先选呼吁项，次选主旨项。",
+                keypoint: "并非呼吁一定是答案（防过度引申），并非原文一定不是答案（主旨化）；把握作者目的和意图这一标准",
+                avoid: "表意肤浅、过于绝对、不符合主旋律的选项"
+            },
+            {
+                name: "态度观点题",
+                type: "片段阅读",
+                markers: ["作者的观点", "作者的态度", "作者的评价", "符合作者观点", "作者认为"],
+                method: "分清类型：（1）明确观点（引导词：某某认为）；（2）隐含观点（倾向性词汇）；（3）没有观点（客观陈述）；（4）杂糅观点（前有后无或前无后有）。",
+                keypoint: "注意'笔者认为'等引导词之前的语句通常是背景铺垫，应排除；识别积极/消极倾向词",
+                avoid: "不要把引用观点当作者观点"
+            },
+            {
+                name: "细节判断题",
+                type: "片段阅读",
+                markers: ["正确/不正确", "可以推出/不能推出", "符合/不符合文意", "理解准确/有误"],
+                method: "对应原则：原文与选项一一对应。警惕偷换时态、偷换数量、偷换逻辑关系、偷换话题、偷换概念、偷换语气。",
+                keypoint: "相对绝对法：相对表述（可能、也许）常为正确答案，绝对表述（一定、全部）常为错误答案",
+                avoid: "无中生有、概念混搭、强加因果"
+            },
+            {
+                name: "词句理解题",
+                type: "片段阅读",
+                markers: ["文中'XXX'如何理解", "指的是", "意思是", "含义是"],
+                method: "定位原文，观察表示解释说明的符号（冒号、破折号）和关联词。没有符号则寻找小语境（上下文和前后句）。排除字面意思的选项。",
+                keypoint: "并存找同义项，相反相对找反义项；多重分句时寻找句首大主语",
+                avoid: "不要选字面意思，要选语境义"
+            },
+            {
+                name: "代词指代题",
+                type: "片段阅读",
+                markers: ["文中某某代词指代的是", "'XXX'指代的是", "这/那/其指代"],
+                method: "指代就近原则：代词通常指代句法结构上邻近的词语。主语话题原则：代词通常与句子主语或话题一致。人称代词重点看主语，指示代词重点看宾语。",
+                keypoint: "有效地利用文中提示性信息（这一切、这两点、后者、这个概念）",
+                avoid: "不要只看距离近，要看语法结构和逻辑关系"
+            },
+            {
+                name: "标题填入题",
+                type: "片段阅读",
+                markers: ["最适合做本文标题的是", "最佳标题是"],
+                method: "变型的主旨概括题+文体风格。新闻类：提炼导语首句主谓宾；说明文：概括说明对象；议论文：把握论点或对策；散文/故事：概括性+趣味性。",
+                keypoint: "新闻标题要有新闻核心关键词；议论文要看总论点，不能只看分论点；散文要有意境",
+                avoid: "标题太大太空，或过于细节"
+            },
+            {
+                name: "语句衔接题",
+                type: "语句表达",
+                markers: ["填入画横线部分最恰当的一句是", "衔接最恰当的是"],
+                method: "连贯性原则。形式上：关联词搭配、标点符号、句式一致。内容上：话题一致、符合逻辑关系、前后照应。",
+                keypoint: "填空类看小语境（前后句），尾句类看整体概括或原因解释",
+                avoid: "话题不一致，逻辑跳跃"
+            },
+            {
+                name: "下文推断题",
+                type: "语句表达",
+                markers: ["接下来谈论的话题是", "最有可能谈的是", "下文最可能论述"],
+                method: "重点阅读文段后半段，把握尾句谈论主题。正确答案与后半段主题保持连贯一致。排除文段已论述内容。",
+                keypoint: "行文思路一致：引出观点+给出理由、提出问题+分析/解答、表明意义+如何落实",
+                avoid: "选文段已经讲过的内容"
+            },
+            {
+                name: "语句排序题",
+                type: "语句表达",
+                markers: ["6个句子重新排序，最连贯的一项是", "语序正确的是"],
+                method: "选项入手，寻头断尾。确定发语词（适合做首句：援引观点、提出概念、引出话题、时间概念；不适合：反面论证、补充类、指代类、结论类）。关联词搭配、时间空间顺序、重复词语。",
+                keypoint: "少数服从多数原则猜测选项布局；验证关联性和紧密度",
+                avoid: "凭语感乱排，不验证逻辑"
+            }
+        ];
+
+        const wordAnalysisData = [
+            { dim: "理性义", items: ["词语侧重：熟悉vs熟习", "语义轻重：批评vs批判", "适用对象：祛除vs驱除"] },
+            { dim: "色彩义", items: ["感情色彩：鼓舞vs煽动", "语体色彩：商量vs商榷", "形象色彩：唾弃、鸡冠花"] },
+            { dim: "语法义", items: ["习惯搭配：暴露目标", "词性功能：形容词修饰名词", "表述功能：主动vs被动"] }
+        ];
+
+        const fillBlankSteps = [
+            { step: 1, title: "排除选项", desc: "感情色彩不符、语义轻重不当的" },
+            { step: 2, title: "寻找语境", desc: "提示性信息、对应词句" },
+            { step: 3, title: "确定选项", desc: "搭配范围、词性功能、语素差异" },
+            { step: 4, title: "验证答案", desc: "代入原文，通读检查" }
+        ];
+
+        const wordComparisons = [
+            { a: "鉴赏", b: "鉴别", diff: "赏=欣赏，别=辨别", example: "鉴赏艺术品 vs 鉴别真伪" },
+            { a: "推脱", b: "推托", diff: "脱=脱掉责任，托=托词借口", example: "推脱责任 vs 推托有事" },
+            { a: "盈利", b: "营利", diff: "盈=获得利润（结果），营=谋求利润（动作）", example: "盈利丰厚 vs 营利活动" },
+            { a: "学历", b: "学力", diff: "历=经历，力=能力", example: "本科学历 vs 同等学力" },
+            { a: "权利", b: "权力", diff: "利=利益，力=力量", example: "公民权利 vs 国家权力" },
+            { a: "反应", b: "反映", diff: "应=回应，映=映照", example: "反应迅速 vs 反映情况" }
+        ];
+
+        // 练习题库（扩展版）
+        const drillBank = [
+            {
+                type: "主旨概括",
+                question: "学习强度一般情况没有胆囊疼痛那么痛苦和无法忍受坚持，那么如果学习达到这种难度，痛并快速地提高自己的学习能力，并努力做到极致，学习收获并不会差！这段话主要强调的是：",
+                options: ["学习需要忍受痛苦", "高强度学习能带来好收获", "胆囊疼痛是最痛苦的", "学习能力提高很快"],
+                correct: 1,
+                explanation: "文段采用类比手法，将学习强度与胆囊疼痛对比，强调即使学习达到'痛'的程度，只要'快速提高'并'做到极致'，'学习收获并不会差'。重点在'痛并...学习收获并不会差'，即高强度学习能带来好收获。",
+                technique: "关联词法（那么...并...）+ 类比论证",
+                structure: "分-总",
+                difficulty: "中等"
+            },
+            {
+                type: "意图推断",
+                question: "目前，我国蓝领岗位中依旧存在大量的瓦工、钢筋工等工种。随着老龄化社会的到来，这些传统技术工种面临后继乏人的困境。这段文字意在强调：",
+                options: ["我国蓝领岗位数量众多", "老龄化社会已经到来", "传统技术工种面临人才断层", "应当重视传统技术工种的传承"],
+                correct: 3,
+                explanation: "文段先阐述现状（存在大量传统工种），接着指出问题（后继乏人）。针对负面问题，作者的意图通常是呼吁解决对策。因此选择'应当重视传统技术工种的传承'这一呼吁项。",
+                technique: "意图推断法（针对问题找对策）",
+                structure: "分-总（问题-对策）",
+                difficulty: "中等"
+            },
+            {
+                type: "逻辑填空",
+                question: "在人工智能研究的热潮中，国内外已形成_____千帆竞发的态势。填入划横线部分最恰当的一项是：",
+                options: ["百家争鸣", "百花齐放", "百舸争流", "千军万马"],
+                correct: 2,
+                explanation: "语境提示'千帆竞发'，与'百舸争流'（许多船只竞相出发，形容声势浩大，竞争激烈）形成最佳对应。'舸'指大船，与'帆'呼应。百家争鸣指学术争论，百花齐放指艺术繁荣，千军万马形容队伍庞大。",
+                technique: "对应词句法（千帆竞发→百舸争流）",
+                structure: "语境对应",
+                difficulty: "中等"
+            },
+            {
+                type: "细节判断",
+                question: "根据这段文字，下列说法正确的是：文段指出，半潜船是通过半潜方式在水中航行，吃水较深，甲板常常与水面一致，因而抗击大风大浪的稳定性极高。此外，半潜船大多具有自航能力，航速可达到15节以上。",
+                options: ["半潜船仅能采用沉浮方式装载货物", "半潜船的主要不足是速度相对缓慢", "半潜船较稳是由于航行时吃水较深", "半潜船没有自航能力"],
+                correct: 2,
+                explanation: "A项'仅能'过于绝对，文段说'既可采用独特的沉浮方式，也能借助码头设施'；B项'速度缓慢'与原文'航速可达到15节以上'矛盾；D项'没有自航能力'与原文'大多具有自航能力'矛盾。C项对应原文'吃水较深...因而抗击大风大浪的稳定性极高'，正确。",
+                technique: "细节判断法（排除绝对化表述）+ 一一对应",
+                structure: "细节查找",
+                difficulty: "中等"
+            },
+            {
+                type: "语句排序",
+                question: "将以下6个句子重新排列，语序正确的是：①腮腺激素能增加肌肉、血管等的活力 ②唾液中就含有这样极具魅力的物质——腮腺激素 ③尤其能强化血管的弹性 ④这种激素是由腮腺分泌的 ⑤永葆青春、返老还童几乎是每个人梦寐以求的事情 ⑥所以，唾液在美颜、护肤方面亦有用武之地",
+                options: ["⑤②④①③⑥", "②①③④⑤⑥", "②①③⑥⑤④", "⑤②①④③⑥"],
+                correct: 0,
+                explanation: "⑤句引出话题'返老还童'，适合作为首句；②句'这样极具魅力的物质'指代⑤句；④句'这种激素'指代②句；①③句具体说明作用，③句'尤其'表递进，应在①后；⑥句'所以'总结。正确顺序：⑤②④①③⑥。",
+                technique: "语句排序法（指代衔接+逻辑顺序）",
+                structure: "总-分-总",
+                difficulty: "较难"
+            },
+            {
+                type: "主旨概括",
+                question: "一般来说，一个社会的监督体系是由多方面力量组成的，媒体监督不应成为其中的主要力量，更不应'一枝独秀'。因为很明显，将整个社会监督的'希望'全部寄托在媒体身上，既不科学，也不现实。这段文字针对的主要问题是：",
+                options: ["目前媒体监督被赋予过多的期望", "社会监督未引起监督对象的重视", "媒体监督的效果尚不理想", "强制性监督的作用未得到充分发挥"],
+                correct: 0,
+                explanation: "文段首句提出观点'媒体监督不应成为主要力量，更不应一枝独秀'，后面'因为'引导原因解释。重点是首句观点，即媒体监督被赋予过多期望。选A。",
+                technique: "总分结构 + 原因推断法",
+                structure: "总-分",
+                difficulty: "中等"
+            },
+            {
+                type: "意图推断",
+                question: "随着全球肉类产量的进一步增加，畜牧业对全球温室效应的影响也会增长。目前，畜牧业用地已经占到地球土地面积的30%，作为农业增长最为迅速的一个门类，畜牧业还会占用更多的土地用来生产饲料和放牧。在拉丁美洲，为了牧场已经摧毁了森林。因此，发展畜牧业会对环境造成巨大压力。这段文字意在说明：",
+                options: ["应严格控制畜牧业发展", "发展畜牧业的环境代价", "畜牧业发展面临的瓶颈", "畜牧业造成的污染严重"],
+                correct: 1,
+                explanation: "文段列举畜牧业对温室效应、土地占用、森林破坏的影响，最后总结'会对环境造成巨大压力'。这是消极问题的阐述，作者意图是说明其环境代价，而非严格控制（A过度推断）。选B。",
+                technique: "意图推断法（消极问题→说明危害）",
+                structure: "分-总",
+                difficulty: "中等"
+            },
+            {
+                type: "逻辑填空",
+                question: "在环境问题上，我们所面临的困境不是由于我们_____，而是我们尽力做了，但却无法遏制环境恶化的势头。这是一个信号：把魔鬼从瓶子里放出来的人类，已经失去把魔鬼再装回去的能力。",
+                options: ["无所顾忌", "无所不为", "无所事事", "无所作为"],
+                correct: 3,
+                explanation: "根据'不是...而是...'的相反并列关系，后面说'尽力做了'，前面应填'没有尽力/没有作为'。无所作为：没有做出任何成绩，指工作中不努力。无所事事：闲着什么事都不干（强调状态）。此处强调'没有努力去做'，选无所作为。",
+                technique: "关联词法（不是...而是...相反并列）+ 语素差异",
+                structure: "语境逻辑",
+                difficulty: "较难"
+            },
+            {
+                type: "态度观点",
+                question: "有些日本人认为不应该纠缠于中日间过去的鸡毛蒜皮的陈年旧账，要放眼中日友好的巨大利益，他们中一些'杰出的'代表还根据欧洲经济共同体的模式提出了'中日韩东亚共同体'的概念。然而，我们必须看到，亚洲过去的历史和现今的现实与欧洲有着很大的不同，欧洲联合的基础是有着相近的基督教文明和长期遭受战争磨难的共同历史，而亚洲国家在这两方面都不尽相同。作者对'中日韩东亚共同体'的态度是：",
+                options: ["认同", "反对", "谨慎认同", "未置可否"],
+                correct: 1,
+                explanation: "文段先引述日本人观点（'杰出的'加引号表反讽），然后用'然而'强转折，指出亚洲与欧洲不同，暗示该概念不适合亚洲。作者持反对态度。选B。",
+                technique: "表达倾向法（引号反讽+转折词）",
+                structure: "援引+转折",
+                difficulty: "较难"
+            },
+            {
+                type: "词句理解",
+                question: "鲁迅先生在《民国新教科书》中谈到：'中国根柢全在道教，以此读史，有多种问题可迎刃而解。'然而，'根柢'一词在此处的含义是：",
+                options: ["根本、基础", "根源、起源", "根基、底蕴", "根据、依据"],
+                correct: 2,
+                explanation: "结合语境，'中国根柢全在道教'意为中国的根基、底蕴全在道教。'根柢'与'根基、底蕴'意思最接近。A'根本'过于抽象，B'起源'强调时间起点，D'根据'强调凭借。选C。",
+                technique: "词句理解法（语境义+近义替换）",
+                structure: "语境理解",
+                difficulty: "中等"
+            }
+        ];
+
+        // ==================== 状态管理 ====================
+    
+        const appState = {
+            currentTab: 'overview',
+            masteredTechniques: new Set(),
+            masteredRelations: new Set(),
+            drillHistory: [],
+            mistakeBook: [],
+            markedQuestions: new Set(),
+            currentDrillIndex: 0,
+            currentDrillSet: [],
+            drillTimer: null,
+            drillTimeLeft: 40,
+            drillAnswers: {},
+            studyTime: 0,
+            lastStudyTime: Date.now()
+        };
+
+        // ==================== 初始化函数 ====================
+
+        function init() {
+            renderNav();
+            renderChecklist();
+            renderTechniques();
+            renderRelations();
+            renderStructures();
+            renderQuestionTypes();
+            renderWordAnalysis();
+            renderFillBlankSteps();
+            renderWordComparisons();
+            updateDate();
+            updateAllStats();
+            
+            loadSavedData();
+            
+            setInterval(() => {
+                appState.studyTime++;
+                updateTodayStudyTime();
+            }, 60000);
+            
+            document.addEventListener('keydown', handleKeyboard);
+            window.addEventListener('beforeunload', saveData);
+        }
+
+        // ==================== 渲染函数 ====================
+
+        function renderNav() {
+            const navItems = [
+                { id: 'overview', name: '学习概览', icon: 'M4 6h16M4 12h16M4 18h16' },
+                { id: 'techniques', name: '15种技法', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
+                { id: 'relations', name: '8种关联词', icon: 'M7 20l4-16m2 16l4-16M6 9h14M4 15h14' },
+                { id: 'structure', name: '行文脉络', icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10' },
+                { id: 'question-types', name: '10种题型', icon: 'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' },
+                { id: 'fill-blank', name: '逻辑填空', icon: 'M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z' },
+                { id: 'practice', name: '计时训练', icon: 'M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z' }
+            ];
+
+            document.getElementById('navMenu').innerHTML = navItems.map(item => `
+                <button onclick="switchTab('${item.id}')" 
+                    class="nav-btn w-full text-left px-4 py-3 rounded-xl hover:bg-blue-50 transition flex items-center space-x-3 ${item.id === 'overview' ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700'}" 
+                    data-tab="${item.id}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${item.icon}"></path>
+                    </svg>
+                    <span>${item.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function renderChecklist() {
+            const items = [
+                "掌握分步解题法（审题问-读题干-看选项）",
+                "理解替换压缩法（同义替换+精简压缩）",
+                "掌握成分分析法（找主谓宾，删定状补）",
+                "识别背景铺垫（快速浏览，排除干扰）",
+                "判断表达倾向（积极↑ vs 消极↓）",
+                "区分正向/反向援引（观点引用）",
+                "识别举例论证（例子前后找观点）",
+                "运用原因推断法（瞻前顾后找主题）",
+                "掌握反面论证法（正推/反推观点）",
+                "利用标点符号法（冒号、分号、问号）",
+                "运用指代引导法（宏观指代词）",
+                "对比选项差异法（找差异词组）",
+                "使用主体排除法（确保主体一致）",
+                "运用排同求异法（排除相同，矛盾选真）",
+                "掌握相对绝对法（相对对，绝对错）"
+            ];
+
+            document.getElementById('checklistContainer').innerHTML = items.map((item, i) => `
+                <label class="checklist-item flex items-center p-3 rounded-lg bg-white border border-gray-200 cursor-pointer" onclick="toggleChecklistItem(${i})">
+                    <input type="checkbox" class="w-5 h-5 text-blue-600 rounded mr-3 pointer-events-none" 
+                        ${appState.masteredTechniques.has(i) ? 'checked' : ''}>
+                    <span class="text-gray-700 text-sm">${item}</span>
+                </label>
+            `).join('');
+        }
+
+        function renderTechniques(filter = 'all') {
+            const filtered = filter === 'all' ? techniquesData : techniquesData.filter(t => t.category === filter);
+            
+            document.getElementById('techniqueGrid').innerHTML = filtered.map((t, i) => `
+                <div class="technique-card bg-white rounded-xl p-5 shadow-sm border border-gray-100 ${appState.masteredTechniques.has(t.id-1) ? 'border-green-400 bg-green-50' : ''}" 
+                    onclick="openTechniqueModal(${t.id-1})">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center gap-2">
+                            <span class="text-2xl">${t.icon}</span>
+                            <span class="text-xs font-semibold px-2 py-1 rounded ${t.category === '基础' ? 'bg-blue-100 text-blue-700' : t.category === '辅助' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}">
+                                ${t.category}
+                            </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${appState.masteredTechniques.has(t.id-1) ? '<span class="text-green-600 text-xs">✓ 已掌握</span>' : ''}
+                            <span class="text-gray-400 text-sm">#${t.id}</span>
+                        </div>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-1">${t.name}</h3>
+                    <p class="text-sm text-gray-600 line-clamp-2">${t.desc}</p>
+                    <div class="mt-3 flex flex-wrap gap-1">
+                        ${t.points.slice(0,2).map(p => `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">${p.substring(0,15)}...</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderRelations() {
+            document.getElementById('relationGrid').innerHTML = relationsData.map((r, i) => `
+                <div class="bg-white rounded-xl p-5 shadow-sm border border-gray-100 hover:shadow-md transition cursor-pointer ${appState.masteredRelations.has(i) ? 'border-purple-400 bg-purple-50' : ''}"
+                    onclick="toggleRelationMastered(${i})">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-lg text-gray-800">${r.type}</h3>
+                        <div class="flex items-center gap-2">
+                            <span class="relation-badge ${r.badge}">${r.badge.replace('badge-', '')}</span>
+                            ${appState.masteredRelations.has(i) ? '<span class="text-purple-600 text-xs">✓</span>' : ''}
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-3">${r.desc}</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="bg-gray-50 p-2 rounded">
+                            <span class="font-semibold text-gray-700">标志：</span>
+                            <span class="text-gray-600">${r.markers.slice(0,2).join('、')}...</span>
+                        </div>
+                        <div class="bg-${r.color}-50 p-2 rounded border-l-2 border-${r.color}-400">
+                            <span class="font-semibold text-${r.color}-800">重点：</span>
+                            <span class="text-${r.color}-700">${r.focus.substring(0,30)}...</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            document.getElementById('relationTableBody').innerHTML = relationsData.map(r => `
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 font-medium text-gray-900">${r.type}</td>
+                    <td class="px-4 py-3 text-gray-600">${r.markers.join('、')}</td>
+                    <td class="px-4 py-3 text-${r.color}-600 font-medium">${r.focus}</td>
+                    <td class="px-4 py-3 text-xs text-gray-500">${r.memory}</td>
+                </tr>
+            `).join('');
+        }
+
+        function renderStructures() {
+            document.getElementById('structureContainer').innerHTML = structuresData.map((s, i) => `
+                <div class="bg-white rounded-xl p-6 shadow-sm border-l-4 ${s.type === '重点结构' ? 'border-blue-500' : 'border-gray-500'}">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="text-lg font-bold ${s.type === '重点结构' ? 'text-blue-800' : 'text-gray-800'}">${s.name}</h3>
+                        <span class="text-xs px-2 py-1 rounded ${s.type === '重点结构' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-700'}">${s.type}</span>
+                    </div>
+                    <p class="text-gray-700 mb-3">${s.desc}</p>
+                    <div class="space-y-2 text-sm">
+                        <div class="bg-gray-50 p-3 rounded">
+                            <strong class="text-gray-700">识别要点：</strong>
+                            <ul class="list-disc list-inside mt-1 text-gray-600">
+                                ${s.features.map(f => `<li>${f}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="bg-yellow-50 p-3 rounded border-l-2 border-yellow-400">
+                            <strong class="text-yellow-800">示例：</strong>
+                            <p class="text-yellow-700 mt-1">${s.example}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderQuestionTypes() {
+            document.getElementById('questionTypeList').innerHTML = questionTypesData.map((qt, i) => `
+                <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition">
+                    <div class="flex items-start justify-between mb-3">
+                        <div>
+                            <h3 class="font-bold text-xl text-gray-800">${i + 1}. ${qt.name}</h3>
+                            <span class="text-xs text-gray-500">${qt.type}</span>
+                        </div>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">题型${i + 1}</span>
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <span class="flex-shrink-0 w-20 text-xs font-semibold text-gray-500 uppercase mt-1">辨别标志</span>
+                            <div class="flex flex-wrap gap-1 flex-1">
+                                ${qt.markers.map(m => `<span class="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">${m}</span>`).join('')}
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <span class="flex-shrink-0 w-20 text-xs font-semibold text-gray-500 uppercase mt-1">做题方法</span>
+                            <p class="text-sm text-gray-700 flex-1 leading-relaxed">${qt.method}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <span class="flex-shrink-0 w-20 text-xs font-semibold text-gray-500 uppercase mt-1">关键要点</span>
+                            <p class="text-sm text-purple-700 bg-purple-50 px-3 py-2 rounded-lg flex-1 font-medium">${qt.keypoint}</p>
+                        </div>
+                        
+                        <div class="flex items-start">
+                            <span class="flex-shrink-0 w-20 text-xs font-semibold text-gray-500 uppercase mt-1">避坑指南</span>
+                            <p class="text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg flex-1">${qt.avoid}</p>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderWordAnalysis() {
+            document.getElementById('wordAnalysisDims').innerHTML = wordAnalysisData.map(d => `
+                <div class="bg-blue-50 rounded-lg p-3">
+                    <h4 class="font-semibold text-blue-800 mb-2">${d.dim}</h4>
+                    <ul class="space-y-1 text-sm text-blue-700">
+                        ${d.items.map(item => `<li>• ${item}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        function renderFillBlankSteps() {
+            document.getElementById('fillBlankSteps').innerHTML = fillBlankSteps.map(s => `
+                <div class="flex items-start gap-3">
+                    <span class="flex-shrink-0 w-8 h-8 bg-purple-600 text-white rounded-full flex items-center justify-center font-bold text-sm">${s.step}</span>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">${s.title}</h4>
+                        <p class="text-sm text-gray-600">${s.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderWordComparisons() {
+            document.getElementById('wordComparisonTable').innerHTML = wordComparisons.map(w => `
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="font-bold text-blue-600">${w.a}</span>
+                        <span class="text-gray-400">vs</span>
+                        <span class="font-bold text-gray-600">${w.b}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">${w.diff}</p>
+                    <p class="text-xs text-blue-600 bg-blue-50 p-2 rounded">${w.example}</p>
+                </div>
+            `).join('');
+        }
+
+        // ==================== 交互功能 ====================
+
+        function switchTab(tabName) {
+            appState.currentTab = tabName;
+            
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                if (btn.dataset.tab === tabName) {
+                    btn.classList.add('bg-blue-50', 'text-blue-700', 'font-semibold');
+                    btn.classList.remove('text-gray-700');
+                } else {
+                    btn.classList.remove('bg-blue-50', 'text-blue-700', 'font-semibold');
+                    btn.classList.add('text-gray-700');
+                }
+            });
+            
+            // 更新移动端底部导航样式（新增）
+            document.querySelectorAll('.mobile-nav button').forEach(btn => {
+                if (btn.dataset.mobileTab === tabName) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            if (tabName === 'practice') {
+                resetDrill();
+            }
+            
+            window.scrollTo(0, 0);
+        }
+
+        function toggleChecklistItem(index) {
+            if (appState.masteredTechniques.has(index)) {
+                appState.masteredTechniques.delete(index);
+            } else {
+                appState.masteredTechniques.add(index);
+            }
+            renderChecklist();
+            updateAllStats();
+            saveData();
+        }
+
+        function toggleRelationMastered(index) {
+            if (appState.masteredRelations.has(index)) {
+                appState.masteredRelations.delete(index);
+            } else {
+                appState.masteredRelations.add(index);
+            }
+            renderRelations();
+            updateAllStats();
+            saveData();
+        }
+
+        function filterTechniques(category) {
+            event.target.parentElement.querySelectorAll('button').forEach(btn => {
+                btn.classList.remove('bg-blue-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-gray-200', 'text-gray-700');
+            event.target.classList.add('bg-blue-600', 'text-white');
+            
+            renderTechniques(category);
+        }
+
+        function openTechniqueModal(index) {
+            const t = techniquesData[index];
+            document.getElementById('techniqueModalContent').innerHTML = `
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="text-3xl">${t.icon}</span>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">${t.name}</h2>
+                        <span class="text-sm px-2 py-1 rounded ${t.category === '基础' ? 'bg-blue-100 text-blue-700' : t.category === '辅助' ? 'bg-green-100 text-green-700' : 'bg-purple-100 text-purple-700'}">${t.category}技法</span>
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div class="bg-gray-50 p-4 rounded-lg">
+                        <h3 class="font-semibold text-gray-800 mb-2">核心原理</h3>
+                        <p class="text-gray-700">${t.detail}</p>
+                    </div>
+                    
+                    <div>
+                        <h3 class="font-semibold text-gray-800 mb-2">关键要点</h3>
+                        <ul class="space-y-2">
+                            ${t.points.map(p => `<li class="flex items-start gap-2"><span class="text-blue-600 mt-1">•</span><span class="text-gray-700">${p}</span></li>`).join('')}
+                        </ul>
+                    </div>
+                    
+                    <div class="bg-yellow-50 p-4 rounded-lg border-l-4 border-yellow-400">
+                        <h3 class="font-semibold text-yellow-800 mb-2">应用示例</h3>
+                        <p class="text-yellow-700">${t.example}</p>
+                    </div>
+                    
+                    <div class="flex gap-3 pt-4">
+                        <button onclick="toggleChecklistItem(${t.id-1}); closeTechniqueModal();" 
+                            class="flex-1 py-2 ${appState.masteredTechniques.has(t.id-1) ? 'bg-green-100 text-green-700' : 'bg-blue-600 text-white'} rounded-lg transition">
+                            ${appState.masteredTechniques.has(t.id-1) ? '✓ 已标记为掌握' : '标记为已掌握'}
+                        </button>
+                        <button onclick="startTechniqueDrill(${t.id-1})" class="flex-1 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition">
+                            针对练习
+                        </button>
+                    </div>
+                </div>
+            `;
+            document.getElementById('techniqueModal').classList.remove('hidden');
+        }
+
+        function closeTechniqueModal() {
+            document.getElementById('techniqueModal').classList.add('hidden');
+        }
+
+        // ==================== 计时训练功能 ====================
+
+        function startMainDrill() {
+            const type = document.getElementById('drillTypeSelect').value;
+            const count = parseInt(document.getElementById('drillCountSelect').value);
+            
+            let available = type === 'all' ? drillBank : drillBank.filter(d => d.type === type);
+            if (available.length === 0) available = drillBank;
+            
+            appState.currentDrillSet = shuffleArray([...available]).slice(0, Math.min(count, available.length));
+            appState.currentDrillIndex = 0;
+            appState.drillAnswers = {};
+            
+            document.getElementById('drillIntro').classList.add('hidden');
+            document.getElementById('drillResult').classList.add('hidden');
+            document.getElementById('drillArea').classList.remove('hidden');
+            
+            loadDrillQuestion(0);
+        }
+
+        function loadDrillQuestion(index) {
+            appState.currentDrillIndex = index;
+            const drill = appState.currentDrillSet[index];
+            
+            document.getElementById('currentDrillNum').textContent = index + 1;
+            document.getElementById('totalDrillNum').textContent = appState.currentDrillSet.length;
+            document.getElementById('currentDrillType').textContent = drill.type + '题';
+            
+            document.getElementById('drillQuestionText').textContent = drill.question;
+            
+            const optionsContainer = document.getElementById('drillOptionsContainer');
+            const hasAnswered = appState.drillAnswers[index] !== undefined;
+            
+            optionsContainer.innerHTML = drill.options.map((opt, i) => `
+                <button onclick="selectDrillAnswer(${i})" 
+                    class="option-btn w-full p-4 rounded-lg ${hasAnswered ? 'disabled' : ''}" 
+                    ${hasAnswered ? 'disabled' : ''}
+                    data-index="${i}">
+                    ${String.fromCharCode(65 + i)}. ${opt}
+                </button>
+            `).join('');
+            
+            document.getElementById('drillFeedback').classList.add('hidden');
+            if (hasAnswered) {
+                showDrillFeedback(index);
+            }
+            
+            resetDrillTimer();
+        }
+
+        function selectDrillAnswer(index) {
+            if (appState.drillAnswers[appState.currentDrillIndex] !== undefined) return;
+            
+            const drill = appState.currentDrillSet[appState.currentDrillIndex];
+            const isCorrect = index === drill.correct;
+            const timeUsed = 40 - appState.drillTimeLeft;
+            
+            appState.drillAnswers[appState.currentDrillIndex] = {
+                selected: index,
+                correct: drill.correct,
+                isCorrect: isCorrect,
+                timeUsed: timeUsed
+            };
+            
+            const buttons = document.querySelectorAll('#drillOptionsContainer .option-btn');
+            buttons.forEach((btn, i) => {
+                btn.disabled = true;
+                if (i === drill.correct) {
+                    btn.classList.add('correct');
+                } else if (i === index && !isCorrect) {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            if (!isCorrect) {
+                appState.mistakeBook.push({
+                    ...drill,
+                    userAnswer: index,
+                    timeUsed: timeUsed,
+                    date: new Date().toLocaleDateString()
+                });
+                document.getElementById('mistakeCount').textContent = appState.mistakeBook.length;
+            }
+            
+            stopDrillTimer();
+            showDrillFeedback(appState.currentDrillIndex);
+            updateDrillStats();
+        }
+
+        function showDrillFeedback(index) {
+            const answer = appState.drillAnswers[index];
+            const drill = appState.currentDrillSet[index];
+            
+            const feedbackDiv = document.getElementById('drillFeedback');
+            const isCorrect = answer.isCorrect;
+            
+            feedbackDiv.className = `mt-6 p-4 rounded-lg border-l-4 ${isCorrect ? 'bg-green-50 border-green-500' : 'bg-red-50 border-red-500'}`;
+            
+            document.getElementById('feedbackTitle').textContent = isCorrect ? '✓ 回答正确' : '✗ 回答错误';
+            document.getElementById('feedbackTitle').className = `font-bold mb-2 ${isCorrect ? 'text-green-800' : 'text-red-800'}`;
+            
+            document.getElementById('feedbackContent').innerHTML = `
+                <strong>正确答案：${String.fromCharCode(65 + drill.correct)}</strong><br>
+                ${drill.explanation}
+            `;
+            document.getElementById('feedbackContent').className = `text-sm mb-2 ${isCorrect ? 'text-green-700' : 'text-red-700'}`;
+            
+            document.getElementById('feedbackTechnique').textContent = `【${drill.technique}】用时${answer.timeUsed}秒`;
+            
+            feedbackDiv.classList.remove('hidden');
+        }
+
+        function resetDrillTimer() {
+            stopDrillTimer();
+            appState.drillTimeLeft = 40;
+            updateDrillTimerDisplay();
+            
+            const strictMode = document.getElementById('strictMode').checked;
+            
+            appState.drillTimer = setInterval(() => {
+                appState.drillTimeLeft--;
+                updateDrillTimerDisplay();
+                
+                if (appState.drillTimeLeft <= 0) {
+                    stopDrillTimer();
+                    if (strictMode && appState.drillAnswers[appState.currentDrillIndex] === undefined) {
+                        selectDrillAnswer(-1);
+                    }
+                }
+            }, 1000);
+        }
+
+        function stopDrillTimer() {
+            if (appState.drillTimer) {
+                clearInterval(appState.drillTimer);
+                appState.drillTimer = null;
+            }
+        }
+
+        function updateDrillTimerDisplay() {
+            const timerEl = document.getElementById('mainTimer');
+            const seconds = appState.drillTimeLeft < 10 ? '0' + appState.drillTimeLeft : appState.drillTimeLeft;
+            timerEl.textContent = `00:${seconds}`;
+            
+            if (appState.drillTimeLeft <= 10) {
+                timerEl.classList.add('timer-warning');
+            } else {
+                timerEl.classList.remove('timer-warning');
+            }
+        }
+
+        function nextDrillQuestion() {
+            if (appState.currentDrillIndex < appState.currentDrillSet.length - 1) {
+                loadDrillQuestion(appState.currentDrillIndex + 1);
+            } else {
+                showDrillResult();
+            }
+        }
+
+        function prevDrillQuestion() {
+            if (appState.currentDrillIndex > 0) {
+                loadDrillQuestion(appState.currentDrillIndex - 1);
+            }
+        }
+
+        function skipCurrentQuestion() {
+            if (appState.drillAnswers[appState.currentDrillIndex] === undefined) {
+                appState.drillAnswers[appState.currentDrillIndex] = {
+                    selected: -1,
+                    correct: appState.currentDrillSet[appState.currentDrillIndex].correct,
+                    isCorrect: false,
+                    timeUsed: 40,
+                    skipped: true
+                };
+            }
+            nextDrillQuestion();
+        }
+
+        function markCurrentQuestion() {
+            appState.markedQuestions.add(appState.currentDrillIndex);
+            alert('已标记此题，可在错题本中查看');
+        }
+
+        function showCurrentHint() {
+            const drill = appState.currentDrillSet[appState.currentDrillIndex];
+            alert(`💡 提示：\n\n本题考查【${drill.technique}】\n行文结构：${drill.structure}\n难度：${drill.difficulty}\n\n建议先分析文段结构，再寻找关联词标志。`);
+        }
+
+        function showDrillResult() {
+            stopDrillTimer();
+            document.getElementById('drillArea').classList.add('hidden');
+            document.getElementById('drillResult').classList.remove('hidden');
+            
+            const answers = Object.values(appState.drillAnswers);
+            const correct = answers.filter(a => a.isCorrect).length;
+            const total = appState.currentDrillSet.length;
+            const accuracy = Math.round((correct / total) * 100);
+            const avgTime = Math.round(answers.reduce((sum, a) => sum + a.timeUsed, 0) / answers.length);
+            const totalTime = answers.reduce((sum, a) => sum + a.timeUsed, 0);
+            
+            document.getElementById('resultScore').textContent = accuracy + '%';
+            document.getElementById('resultCorrect').textContent = `${correct}/${total}`;
+            document.getElementById('resultAvgTime').textContent = avgTime + '秒';
+            document.getElementById('resultTotalTime').textContent = totalTime + '秒';
+            
+            appState.drillHistory.push({
+                date: new Date().toLocaleString(),
+                type: document.getElementById('drillTypeSelect').value,
+                count: total,
+                correct: correct,
+                accuracy: accuracy,
+                avgTime: avgTime
+            });
+            
+            updateAllStats();
+            saveData();
+        }
+
+        function reviewWrongQuestions() {
+            if (appState.mistakeBook.length === 0) {
+                alert('暂无错题，继续保持！');
+                return;
+            }
+            
+            let content = `📚 错题本（共${appState.mistakeBook.length}题）\n\n`;
+            appState.mistakeBook.slice(-5).forEach((m, i) => {
+                content += `${i+1}. 【${m.type}】${m.question.substring(0,30)}...\n`;
+                content += `   你的答案：${String.fromCharCode(65 + m.userAnswer)} | 正确答案：${String.fromCharCode(65 + m.correct)}\n`;
+                content += `   技法：${m.technique}\n\n`;
+            });
+            
+            alert(content);
+        }
+
+        function restartDrill() {
+            document.getElementById('drillResult').classList.add('hidden');
+            document.getElementById('drillIntro').classList.remove('hidden');
+        }
+
+        function resetDrill() {
+            stopDrillTimer();
+            document.getElementById('drillArea').classList.add('hidden');
+            document.getElementById('drillResult').classList.add('hidden');
+            document.getElementById('drillIntro').classList.remove('hidden');
+            document.getElementById('mainTimer').textContent = '00:40';
+            document.getElementById('mainTimer').classList.remove('timer-warning');
+        }
+
+        // ==================== 辅助功能 ====================
+
+        function handleSearch(e) {
+            if (e.key !== 'Enter') return;
+            
+            const query = e.target.value.toLowerCase().trim();
+            if (!query) return;
+            
+            const foundTechnique = techniquesData.find(t => 
+                t.name.includes(query) || t.desc.includes(query) || t.points.some(p => p.includes(query))
+            );
+            
+            const foundRelation = relationsData.find(r => 
+                r.type.includes(query) || r.markers.some(m => m.includes(query))
+            );
+            
+            const foundType = questionTypesData.find(qt => 
+                qt.name.includes(query) || qt.markers.some(m => m.includes(query))
+            );
+            
+            let result = '';
+            if (foundTechnique) {
+                result = `找到技法：${foundTechnique.name}`;
+                switchTab('techniques');
+            } else if (foundRelation) {
+                result = `找到关联词：${foundRelation.type}`;
+                switchTab('relations');
+            } else if (foundType) {
+                result = `找到题型：${foundType.name}`;
+                switchTab('question-types');
+            } else {
+                result = '未找到相关内容，请尝试其他关键词';
+            }
+            
+            setTimeout(() => highlightSearch(query), 100);
+            alert(result);
+        }
+
+        function highlightSearch(query) {
+            console.log('搜索高亮：', query);
+        }
+
+        function clearSearch() {
+            document.getElementById('globalSearch').value = '';
+        }
+
+        function toggleFocusMode() {
+            document.body.classList.toggle('focus-mode');
+            const isFocus = document.body.style.filter === 'grayscale(100%)';
+            if (isFocus) {
+                document.body.style.filter = '';
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+            } else {
+                document.body.style.filter = 'grayscale(100%)';
+                document.body.style.background = '#f3f4f6';
+            }
+        }
+
+        function toggleHelp() {
+            const modal = document.getElementById('helpModal');
+            modal.classList.toggle('hidden');
+        }
+
+        function scrollToTop() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function randomDrill() {
+            switchTab('practice');
+            setTimeout(() => startMainDrill(), 100);
+        }
+
+        function showMistakeBook() {
+            reviewWrongQuestions();
+        }
+
+        function exportProgress() {
+            const data = {
+                studyTime: appState.studyTime,
+                masteredTechniques: Array.from(appState.masteredTechniques),
+                masteredRelations: Array.from(appState.masteredRelations),
+                drillHistory: appState.drillHistory,
+                mistakeBook: appState.mistakeBook,
+                exportDate: new Date().toLocaleString()
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `言语学习进度_${new Date().toLocaleDateString()}.json`;
+            a.click();
+            
+            alert('进度已导出！请妥善保存文件，可在其他设备导入。');
+        }
+
+        function resetChecklist() {
+            if (confirm('确定要重置所有学习进度吗？')) {
+                appState.masteredTechniques.clear();
+                appState.masteredRelations.clear();
+                renderChecklist();
+                renderTechniques();
+                renderRelations();
+                updateAllStats();
+                saveData();
+            }
+        }
+
+        function startTechniqueDrill(techniqueIndex) {
+            const technique = techniquesData[techniqueIndex];
+            const relatedDrills = drillBank.filter(d => d.technique.includes(technique.name));
+            
+            if (relatedDrills.length > 0) {
+                alert(`找到${relatedDrills.length}道相关练习题，即将开始针对【${technique.name}】的专项训练`);
+                switchTab('practice');
+            } else {
+                alert('暂无针对此技法的专项练习，建议进行通用训练');
+            }
+        }
+
+        function startRelationQuiz() {
+            const quizDiv = document.getElementById('relationQuiz');
+            const randomRelation = relationsData[Math.floor(Math.random() * relationsData.length)];
+            
+            quizDiv.innerHTML = `
+                <div class="bg-blue-50 p-4 rounded-lg mb-4">
+                    <p class="font-semibold mb-2">请判断以下句子使用的关联词关系：</p>
+                    <p class="text-lg text-blue-800 mb-4">"他${randomRelation.markers[0].replace('...', '很努力')}，${randomRelation.markers[0].includes('不但') ? '而且取得了好成绩' : '取得了好成绩'}"</p>
+                    <div class="grid grid-cols-2 gap-2">
+                        ${relationsData.map(r => `
+                            <button onclick="checkRelationAnswer('${r.type}', '${randomRelation.type}')" 
+                                class="p-2 rounded ${r.color === 'blue' ? 'bg-blue-100 text-blue-700' : r.color === 'green' ? 'bg-green-100 text-green-700' : r.color === 'red' ? 'bg-red-100 text-red-700' : r.color === 'yellow' ? 'bg-yellow-100 text-yellow-700' : 'bg-purple-100 text-purple-700'} hover:opacity-80 transition">
+                                ${r.type}
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="startRelationQuiz()" class="text-blue-600 hover:text-blue-800 text-sm">换一题</button>
+            `;
+        }
+
+        function checkRelationAnswer(selected, correct) {
+            if (selected === correct) {
+                alert('✓ 回答正确！' + relationsData.find(r => r.type === correct).focus);
+            } else {
+                alert('✗ 回答错误。正确答案是：' + correct);
+            }
+        }
+
+        function startStructureExercise() {
+            const exerciseDiv = document.getElementById('structureExercise');
+            const randomStructure = structuresData[Math.floor(Math.random() * structuresData.length)];
+            
+            exerciseDiv.innerHTML = `
+                <div class="bg-purple-50 p-4 rounded-lg">
+                    <p class="font-semibold mb-2">请判断以下文段的行文脉络：</p>
+                    <p class="text-gray-700 mb-4 italic">${randomStructure.example}</p>
+                    <div class="space-y-2">
+                        ${structuresData.map(s => `
+                            <button onclick="checkStructureAnswer('${s.name}', '${randomStructure.name}')" 
+                                class="w-full text-left p-3 rounded bg-white hover:bg-purple-100 transition border border-purple-200">
+                                <span class="font-semibold">${s.name}</span>
+                                <span class="text-xs text-gray-500 ml-2">${s.type}</span>
+                            </button>
+                        `).join('')}
+                    </div>
+                </div>
+                <button onclick="startStructureExercise()" class="mt-4 text-purple-600 hover:text-purple-800 text-sm">换一题</button>
+            `;
+        }
+
+        function checkStructureAnswer(selected, correct) {
+            if (selected === correct) {
+                alert('✓ 回答正确！' + structuresData.find(s => s.name === correct).desc);
+            } else {
+                alert('✗ 回答错误。正确答案是：' + correct);
+            }
+        }
+
+        // ==================== 统计与数据 ====================
+
+        function updateAllStats() {
+            const techCount = appState.masteredTechniques.size;
+            document.getElementById('statTechniques').textContent = `${techCount}/15`;
+            document.getElementById('cardTechniques').textContent = `${techCount}/15`;
+            
+            const relCount = appState.masteredRelations.size;
+            document.getElementById('statRelations').textContent = `${relCount}/8`;
+            document.getElementById('cardRelations').textContent = `${relCount}/8`;
+            
+            const totalDrills = appState.drillHistory.reduce((sum, h) => sum + h.count, 0);
+            document.getElementById('cardPractices').textContent = totalDrills;
+            
+            if (appState.drillHistory.length > 0) {
+                const lastAcc = appState.drillHistory[appState.drillHistory.length - 1].accuracy;
+                document.getElementById('statAccuracy').textContent = lastAcc + '%';
+            }
+            
+            const totalProgress = Math.round(((techCount + relCount) / 23) * 100);
+            document.getElementById('totalProgress').style.width = totalProgress + '%';
+            document.getElementById('totalProgressText').textContent = totalProgress + '%';
+            
+            document.getElementById('mistakeCount').textContent = appState.mistakeBook.length;
+        }
+
+        function updateTodayStudyTime() {
+            const minutes = appState.studyTime;
+            document.getElementById('statToday').textContent = minutes + '分钟';
+        }
+
+        function updateDate() {
+            document.getElementById('currentDate').textContent = new Date().toLocaleDateString('zh-CN', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                weekday: 'long'
+            });
+        }
+
+        function updateDrillStats() {
+            // 实时更新练习统计
+        }
+
+        // ==================== 数据持久化 ====================
+
+        function saveData() {
+            const data = {
+                masteredTechniques: Array.from(appState.masteredTechniques),
+                masteredRelations: Array.from(appState.masteredRelations),
+                drillHistory: appState.drillHistory,
+                mistakeBook: appState.mistakeBook,
+                studyTime: appState.studyTime,
+                saveDate: new Date().toISOString()
+            };
+            localStorage.setItem('yanYuLearningData', JSON.stringify(data));
+        }
+
+        function loadSavedData() {
+            const saved = localStorage.getItem('yanYuLearningData');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    appState.masteredTechniques = new Set(data.masteredTechniques || []);
+                    appState.masteredRelations = new Set(data.masteredRelations || []);
+                    appState.drillHistory = data.drillHistory || [];
+                    appState.mistakeBook = data.mistakeBook || [];
+                    appState.studyTime = data.studyTime || 0;
+                    
+                    updateAllStats();
+                    updateTodayStudyTime();
+                } catch (e) {
+                    console.error('加载保存数据失败', e);
+                }
+            }
+        }
+
+        // ==================== 工具函数 ====================
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function handleKeyboard(e) {
+            if (e.key === 'Escape') {
+                document.getElementById('techniqueModal').classList.add('hidden');
+                document.getElementById('helpModal').classList.add('hidden');
+            }
+            
+            if (appState.currentTab === 'practice' && !document.getElementById('drillArea').classList.contains('hidden')) {
+                if (e.key >= '1' && e.key <= '4') {
+                    const idx = parseInt(e.key) - 1;
+                    const buttons = document.querySelectorAll('#drillOptionsContainer .option-btn:not(:disabled)');
+                    if (buttons[idx]) buttons[idx].click();
+                } else if (e.key === 'ArrowRight') {
+                    nextDrillQuestion();
+                } else if (e.key === 'ArrowLeft') {
+                    prevDrillQuestion();
+                } else if (e.key === ' ') {
+                    e.preventDefault();
+                    if (!document.getElementById('drillIntro').classList.contains('hidden')) {
+                        startMainDrill();
+                    }
+                }
+            }
+        }
+
+        // ==================== 启动 ====================
+
+        document.addEventListener('DOMContentLoaded', init);
+
+        // ==================== PWA注册 ====================
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => {
+                        console.log('SW注册成功:', registration.scope);
+                        
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    if (confirm('发现新版本，是否刷新更新？')) {
+                                        window.location.reload();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(err => console.log('SW注册失败:', err));
+            });
+        }
+
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('可以安装PWA了');
+        });
+
+        const isIos = () => {
+            const userAgent = window.navigator.userAgent.toLowerCase();
+            return /iphone|ipad|ipod/.test(userAgent);
+        };
+
+        const isInStandaloneMode = () => ('standalone' in window.navigator) && (window.navigator.standalone);
+
+        if (isIos() && !isInStandaloneMode()) {
+            console.log('iOS用户，请使用"分享到主屏幕"');
+        }
+    </script>
+
+    <!-- 移动端底部导航 -->
+    <nav class="mobile-nav">
+        <button onclick="switchTab('overview')" class="active" data-mobile-tab="overview">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+            概览
+        </button>
+        <button onclick="switchTab('techniques')" data-mobile-tab="techniques">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg>
+            技法
+        </button>
+        <button onclick="switchTab('relations')" data-mobile-tab="relations">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14"></path></svg>
+            关联词
+        </button>
+        <button onclick="switchTab('practice')" data-mobile-tab="practice">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            训练
+        </button>
+    </nav>
+
+</body>
+</html>

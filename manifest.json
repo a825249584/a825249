@@ -1,0 +1,21 @@
+{
+  "name": "言语理解与表达极限版 - 智能学习系统",
+  "short_name": "言语学习",
+  "start_url": "./001.html",
+  "display": "standalone",
+  "background_color": "#764ba2",
+  "theme_color": "#764ba2",
+  "description": "40秒解题法 · 15种实战技法 · 动态学习系统",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
