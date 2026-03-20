@@ -9,25 +9,53 @@
         body { 
             font-family: Arial, sans-serif; 
             padding: 20px; 
-            max-width: 800px; 
+            max-width: 900px; 
             margin: 0 auto; 
         }
         h1 { color: #2c5530; }
+        
+        /* 标签页样式 */
+        .tab-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 10px;
+        }
+        .tab-btn {
+            padding: 10px 15px;
+            background: #e0e0e0;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px 5px 0 0;
+        }
+        .tab-btn.active {
+            background: #4CAF50;
+            color: white;
+        }
+        .tab-content {
+            display: none;
+            border: 2px solid #4CAF50;
+            border-radius: 0 10px 10px 10px;
+            padding: 10px;
+        }
+        .tab-content.active {
+            display: block;
+        }
         .pdf-box { 
             width: 100%; 
-            height: 600px; 
-            margin: 20px 0;
-            border: 2px solid #4CAF50;
-            border-radius: 10px;
+            height: 500px; 
+            border: none;
         }
-        .download-btn {
+        
+        /* 下载按钮 */
+        .download-all {
             display: inline-block;
             padding: 12px 24px;
-            background: #4CAF50;
+            background: #ff9800;
             color: white;
             text-decoration: none;
             border-radius: 5px;
-            margin: 10px 0;
+            margin: 15px 0;
         }
     </style>
 </head>
@@ -35,20 +63,74 @@
     <h1>🐄 智慧养牛系统</h1>
     <p>欢迎访问我的智慧农业PWA应用</p>
     
-    <h2>📄 养殖技术资料</h2>
+    <h2>📚 养殖技术资料（7份）</h2>
     
-    <!-- PDF嵌入显示 -->
-    <iframe class="pdf-box" src="01a.pdf"></iframe>
-    
-    <!-- 备用下载链接 -->
+    <!-- 一键下载全部 -->
     <p>
-        <a class="download-btn" href="01a.pdf" download>⬇️ 下载PDF文件</a>
+        <a class="download-all" href="1.1.pdf" download>⬇️ 下载资料1.1</a>
+        <a class="download-all" href="1.2.pdf" download>⬇️ 下载资料1.2</a>
+        <a class="download-all" href="1.3.pdf" download>⬇️ 下载资料1.3</a>
+        <a class="download-all" href="1.4.pdf" download>⬇️ 下载资料1.4</a>
+        <a class="download-all" href="1.5.pdf" download>⬇️ 下载资料1.5</a>
+        <a class="download-all" href="1.6.pdf" download>⬇️ 下载资料1.6</a>
+        <a class="download-all" href="1.7.pdf" download>⬇️ 下载资料1.7</a>
     </p>
+    
+    <!-- 标签页按钮 -->
+    <div class="tab-buttons">
+        <button class="tab-btn active" onclick="showTab('tab1')">资料1.1</button>
+        <button class="tab-btn" onclick="showTab('tab2')">资料1.2</button>
+        <button class="tab-btn" onclick="showTab('tab3')">资料1.3</button>
+        <button class="tab-btn" onclick="showTab('tab4')">资料1.4</button>
+        <button class="tab-btn" onclick="showTab('tab5')">资料1.5</button>
+        <button class="tab-btn" onclick="showTab('tab6')">资料1.6</button>
+        <button class="tab-btn" onclick="showTab('tab7')">资料1.7</button>
+    </div>
+    
+    <!-- 标签页内容 -->
+    <div id="tab1" class="tab-content active">
+        <iframe class="pdf-box" src="1.1.pdf"></iframe>
+    </div>
+    <div id="tab2" class="tab-content">
+        <iframe class="pdf-box" src="1.2.pdf"></iframe>
+    </div>
+    <div id="tab3" class="tab-content">
+        <iframe class="pdf-box" src="1.3.pdf"></iframe>
+    </div>
+    <div id="tab4" class="tab-content">
+        <iframe class="pdf-box" src="1.4.pdf"></iframe>
+    </div>
+    <div id="tab5" class="tab-content">
+        <iframe class="pdf-box" src="1.5.pdf"></iframe>
+    </div>
+    <div id="tab6" class="tab-content">
+        <iframe class="pdf-box" src="1.6.pdf"></iframe>
+    </div>
+    <div id="tab7" class="tab-content">
+        <iframe class="pdf-box" src="1.7.pdf"></iframe>
+    </div>
     
     <hr>
     <p><small>© 2024 智慧农业系统</small></p>
     
     <script>
+        // 标签页切换功能
+        function showTab(tabId) {
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            // 移除所有按钮激活状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // 显示选中内容
+            document.getElementById(tabId).classList.add('active');
+            // 激活对应按钮
+            event.target.classList.add('active');
+        }
+        
+        // PWA注册
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.register('sw.js');
         }
